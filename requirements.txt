@@ -1,5 +1,10 @@
 starlette
-uvicorn[standard]
 pydantic
+uvicorn[standard]
 fastapi
 typst
+pydantic-settings
+python-dotenv
+pyjwt[crypto]
+requests
+certifi
