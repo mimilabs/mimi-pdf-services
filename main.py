@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Response, Security
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
 import base64
 import typst
 from utils import VerifyToken
@@ -10,15 +9,12 @@ import time
 import os
 from string import Template
 from fastapi import HTTPException
+from models import RawTypst
 
 app = FastAPI()
 auth = VerifyToken()
 
 basic_template = Template(open('templates/basic_template.typ').read())
-
-class RawTypst(BaseModel):
-    source: str
-    filename: str = "tmp"
 
 def _make_pdf(source: str, filename: str):
     
