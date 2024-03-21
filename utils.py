@@ -17,9 +17,9 @@ class UnauthorizedException(HTTPException):
 class UnauthenticatedException(HTTPException):
     def __init__(self):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Requires authentication"
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Requires authentication"
         )
-
 
 class VerifyToken:
     """Does all the token verification using PyJWT"""
@@ -74,7 +74,8 @@ class VerifyToken:
 
     def _check_claims(self, payload, claim_name, expected_value):
         if claim_name not in payload:
-            raise UnauthorizedException(detail=f'No claim "{claim_name}" found in token')
+            raise UnauthorizedException(
+                    detail=f'No claim "{claim_name}" found in token')
 
         payload_claim = payload[claim_name]
 

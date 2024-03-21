@@ -1,7 +1,7 @@
 import requests
 import json
 from config import get_settings
-
+import time
 
 # Step 0 - get the access token
 def get_access_token():
@@ -84,8 +84,14 @@ if __name__ == "__main__":
     test_basic_template(access_token, "svg")
     test_prc_template(access_token, "svg")
 
-    test_basic_template(access_token, "jpeg")
-    test_prc_template(access_token, "jpeg")
-
-
-
+    #test_basic_template(access_token, "jpeg")
+    #test_prc_template(access_token, "jpeg")
+    
+    start = time.time()
+    for i in range(1, 101):
+        test_prc_template(access_token, "png")
+        if i % 10 == 0:
+            end = time.time()
+            print(f"Processing Time for {i} PDFs: " + 
+                    f"{round((end - start)*100)/100} sec" + 
+                  f", {round((end - start)/(i + 1)*100)/100} sec per PDF")

@@ -18,7 +18,7 @@ auth = VerifyToken()
 basic_template = Template(open('templates/basic_template.typ').read())
 prc_template = Template(open('templates/prc_template.typ').read())
 
-def _make_pdf(source: str, filename: str, format: str):
+def _make_pdf(source: str, filename: str, format: str, azp: str):
     
     start = time.time()    
     fpath = "./workdir" 
@@ -30,9 +30,9 @@ def _make_pdf(source: str, filename: str, format: str):
         fpath = fp.name
 
     try:
-        pdf_bytes = typst.compile(fpath, format=format) # compile the Typst source
+        # compile the Typst source
+        pdf_bytes = typst.compile(fpath, format=format) 
     except RuntimeError as e:
-        print(e)
         raise HTTPException(status_code=500,
                             detail=str(e),
                             headers={"X-Error": "Typst compile error"})
@@ -42,21 +42,19 @@ def _make_pdf(source: str, filename: str, format: str):
     end = time.time() # measure the team
     processing_time = end - start
     
-    # log on MongoDB
     return Response(content=pdf_bytes, 
                 media_type=f"application/{format}", 
                 headers={"Content-Disposition": ('attachment; '+ 
                             f'filename={filename}.{format}'),
-                     "MIMI-Processing-Time": str(processing_time),
-                     "MIMI-MongoDB-ID": ""})
-
+                     "MIMI-Processing-Time": str(processing_time)})
 
 @app.post('/get_blank_template')
 async def get_blank_template(rawtypst: RawTypst,
                     auth_result: str = Security(auth.verify)):
     filename = Path(rawtypst.filename).stem
     format = rawtypst.format
-    return _make_pdf(rawtypst.source, filename, format)
+    return _make_pdf(rawtypst.source, filename, format, 
+                     auth_result["azp"])
 
 @app.post('/get_basic_template')
 async def get_basic_template(rawtypst: RawTypst,
@@ -65,7 +63,7 @@ async def get_basic_template(rawtypst: RawTypst,
     filename = Path(rawtypst.filename).stem
     format = rawtypst.format
     return _make_pdf(basic_template.substitute(content=rawtypst.source),
-                     filename, format)
+                     filename, format, auth_result["azp"])
 
 @app.post('/get_prc_template')
 async def get_basic_template(prcform: PrcForm,
@@ -74,5 +72,5 @@ async def get_basic_template(prcform: PrcForm,
     filename = Path(prcform.filename).stem
     format = prcform.format
     return _make_pdf(prc_template.substitute(**prcform.__dict__),
-                     filename, format)
+                     filename, format, auth_result["azp"])
 
