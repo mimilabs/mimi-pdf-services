@@ -32,7 +32,7 @@ def test_basic_template(access_token, format="pdf"):
                 data = json.dumps(data))
     if res.status_code == 200:
         filename = res.headers['content-disposition'].split('=')[1]
-        with open(f"pdfs/{filename}", "wb") as fp:
+        with open(f"test_outputs/{filename}", "wb") as fp:
             fp.write(res.content)
 
 # Step 2 - get PDF with the PRC template
@@ -67,7 +67,7 @@ def test_prc_template(access_token, format="pdf"):
 
     if res.status_code == 200:
         filename = res.headers['content-disposition'].split('=')[1]
-        with open(f"pdfs/{filename}", "wb") as fp:
+        with open(f"test_outputs/{filename}", "wb") as fp:
             fp.write(res.content)
 
 
