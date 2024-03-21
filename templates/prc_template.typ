@@ -1,27 +1,28 @@
 #set page(
   paper: "us-letter",
   header: align(right)[
-    #image("mimilogo-withtext.png", width: 15%)
+    #image("mimilabs-withtext.png", width: 15%)
   ],
   footer: align(left)[
     #text(size: 9pt, fill: gray)[miilabs.ai - Beautiful Small Projects, One by One
     #h(1fr)
     Created on #datetime.today().display()]
-  ]
+  ],
+  margin: (x: 1.5cm, y: 3cm),
 )
 
 #set par(justify: true)
 #set text(
   font: "Linux Libertine",
-  size: 11pt,
+  size: 10pt,
 )
 
 = $patientname - $formname
 
-\
+#linebreak()
 = $psection
 
-$profiledescription
+#text(size: 9pt, fill: rgb("a1a1aa"))[$pdescription]
 
 #let frame(stroke) = (x, y) => (
   left: 0pt,
@@ -32,7 +33,7 @@ $profiledescription
 
 #set table(
   fill: (rgb("ffebe2"), none, rgb("ffebe2"), none),
-  stroke: frame(rgb("ddd")),
+  stroke: frame(rgb("a1a1aa")),
 )
 #table(
   columns: (auto, 1fr, auto, 1fr),
@@ -43,10 +44,10 @@ $profiledescription
   [*$pname9*], [$pvalue9], [*$pname10*], [$pvalue10]  
 )
 
-\
+#linebreak()
 = $rsection
 
-$riskfactordescription
+#text(size: 9pt, fill: rgb("a1a1aa"))[$rdescription]
 
 #let frame(stroke) = (x, y) => (
   left: 0pt,
@@ -57,12 +58,12 @@ $riskfactordescription
 
 #set table(
   fill: (x, y) => if y < 1 { rgb("fffcdf") } else { none },
-  stroke: frame(rgb("ddd")),
+  stroke: frame(rgb("a1a1aa")),
 )
 
 #table(
   columns: (auto, 1fr, 1fr, auto),
-  table.header([*$rname1a*],[*$rname1b*],[*$rname1c*],[*$rname1d*]),
+  [*$rname1a*],[*$rname1b*],[*$rname1c*],[*$rname1d*],
   [$rvalue1a], [$rvalue1b], [$rvalue1c], [$rvalue1d],
   [$rvalue2a], [$rvalue2b], [$rvalue2c], [$rvalue2d],
   [$rvalue3a], [$rvalue3b], [$rvalue3c], [$rvalue3d],
@@ -75,19 +76,20 @@ $riskfactordescription
   [$rvalue10a], [$rvalue10b], [$rvalue10c], [$rvalue10d],
 )
 
-\
+#linebreak()
 = $csection
 
-$caregapdescription
+#text(size: 9pt, fill: rgb("a1a1aa"))[$cdescription]
 
 #set table(
   fill: (x, y) => if y < 1 { rgb("edfde0") } else { none },
-  stroke: frame(rgb("ddd")),
+  stroke: frame(rgb("a1a1aa")),
 )
+
 
 #table(
   columns: (auto, 1fr, 1fr, auto),
-  table.header([*$cname1a*],[*$cname1b*],[*$cname1c*],[*$cname1d*]),
+  [*$cname1a*],[*$cname1b*],[*$cname1c*],[*$cname1d*],
   [$cvalue1a], [$cvalue1b], [$cvalue1c], [$cvalue1d],
   [$cvalue2a], [$cvalue2b], [$cvalue2c], [$cvalue2d],
   [$cvalue3a], [$cvalue3b], [$cvalue3c], [$cvalue3d],
