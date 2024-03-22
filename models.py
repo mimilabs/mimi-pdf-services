@@ -19,7 +19,7 @@ class PrcForm(BaseModel):
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
     patientname: str = "\[Patient Name\]"
-    formname: str = "Annual Wellness Visit Form"
+    formname: str = "PRC Form"
     psection: str = "Profile"
     pdescription: str = "The profile information is based on CMS's Claim and Claim Line Feed (CCLF) data."
     rsection: str = "Risk Factor Snapshot"
