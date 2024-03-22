@@ -8,3 +8,4 @@ python-dotenv
 pyjwt[crypto]
 requests
 certifi
+email-validator

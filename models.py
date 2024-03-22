@@ -1,14 +1,23 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal, List
 
-class RawTypst(BaseModel):
-    source: str
+LOGO_LIST = Literal["\"mimilabs.png\"", 
+                   "\"auth0.png\"", 
+                   "\"fastapi.png\"", 
+                   "\"auth0.png\""]
+
+class BasicForm(BaseModel):
+    content: str
     format: Literal["pdf", "png", "svg"]
     filename: str = "raw_tmp"
+    headerlogo: LOGO_LIST = "\"mimilabs.png\""
+    footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
 
 class PrcForm(BaseModel):
     format: Literal["pdf", "png", "svg"]
     filename: str = "prc_tmp"
+    headerlogo: LOGO_LIST = "\"mimilabs.png\""
+    footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
     patientname: str = "\[Patient Name\]"
     formname: str = "Annual Wellness Visit Form"
     psection: str = "Profile"
@@ -105,3 +114,15 @@ class PrcForm(BaseModel):
     cvalue5b: str = ""
     cvalue5c: str = ""
     cvalue5d: str = ""
+
+BasicForms = List[BasicForm]
+PrcForms = List[PrcForm]
+
+class BulkItem(BaseModel):
+    bytestring: str
+    processing_time: float
+    filename: str
+
+BulkOutput = List[BulkItem]
+
+
