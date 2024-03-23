@@ -1,5 +1,6 @@
 import requests
 import json
+import csv
 from config import get_settings
 import time
 import hashlib
@@ -272,14 +273,30 @@ def test_bulk_pam_template(access_token, address, format="pdf"):
             with open(f"test_outputs/{filename}", "wb") as fp:
                 fp.write(base64.b64decode(output_item["bytestring"]))
 
+# Step 10
+def test_bulk_speed(access_token, address, bulk_cnt, format="pdf"):
 
+    start = time.time()
+    prc_forms = [_get_sample_prc_form(i, format) for i in range(0, bulk_cnt)]
+    headers = {"content-type": "application/json",
+               "Authorization": ("Bearer " + access_token)}
+    res = requests.post(f"{address}/use_prc_template_in_bulk",
+                headers = headers, 
+                data = json.dumps(prc_forms))
+    end = time.time()
+
+    time_tot = end - start
+    time_avg = time_tot / bulk_cnt
+
+    return bulk_cnt, time_tot, time_avg
+
+ 
 if __name__ == "__main__":
 
     access_token = get_access_token()
-    #address = "https://pdfservices.mimilabs.org" 
-    address = "http://127.0.0.1:8000" 
-   
-    """
+    address = "https://pdfservices.mimilabs.org" 
+    #address = "http://127.0.0.1:8000" 
+    
     test_blank_template(access_token, address)
     test_blank_template(access_token, address, "png")
     
@@ -297,7 +314,6 @@ if __name__ == "__main__":
     test_bulk_prc_template(access_token, address)
 
     test_bulk_basic_template(access_token, address)
-    """
 
     test_pas_template(access_token, address)
     test_pas_template(access_token, address, "png")
@@ -306,4 +322,14 @@ if __name__ == "__main__":
     test_pam_template(access_token, address)
     test_pam_template(access_token, address, "png")
     test_bulk_pam_template(access_token, address)
+    
+    data = [["cnt", "time_tot", "time_avg"]]
+    for i in range(5): # 5 batches of experiments
+        for bulk_cnt in [1, 5, 10, 20, 30, 40, 50, 100]:
+            d = test_bulk_speed(access_token, address, bulk_cnt)
+            print(f"[SpeedTest] {str(d)}")
+            data.append(d)
+    with open("test_outputs/speed_test.csv", "w") as fp:
+        writer = csv.writer(fp)
+        writer.writerows(data)
 
