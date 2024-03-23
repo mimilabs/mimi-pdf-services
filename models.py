@@ -115,8 +115,51 @@ class PrcForm(BaseModel):
     cvalue5c: str = ""
     cvalue5d: str = ""
 
+class PasForm(BaseModel):
+    format: Literal["pdf", "png", "svg"]
+    filename: str = "pas_tmp"
+    headerlogo: LOGO_LIST = "\"mimilabs.png\""
+    footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
+    medicaldirectorname: str = "Medical Director"
+    insurancecompanyname: str = ""
+    patientname: str = ""
+    policyholdername: str = ""
+    patientid: str = ""
+    claimid: str = ""
+    procedurename: str = ""
+    surgerydate: str = "" 
+    reasonsforappropriateness: str = ""
+    riskfactors: str = ""
+    faxnumber: str = ""
+    phonenumber: str = ""
+    doctorname: str = ""
+    practicename: str = ""
+
+class PamForm(BaseModel):
+    format: Literal["pdf", "png", "svg"]
+    filename: str = "pam_tmp"
+    headerlogo: LOGO_LIST = "\"mimilabs.png\""
+    footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
+    medicaldirectorname: str = "Medical Director"
+    insurancecompanyname: str = ""
+    patientname: str = ""
+    policyholdername: str = ""
+    patientid: str = ""
+    claimid: str = ""
+    productname: str = ""
+    diagnosis: str = ""
+    indications: str = "" 
+    reasonsforappropriateness: str = ""
+    riskfactors: str = ""
+    faxnumber: str = ""
+    phonenumber: str = ""
+    doctorname: str = ""
+    practicename: str = ""
+
 BasicForms = List[BasicForm]
 PrcForms = List[PrcForm]
+PasForms = List[PasForm]
+PamForms = List[PamForm]
 
 class BulkItem(BaseModel):
     bytestring: str

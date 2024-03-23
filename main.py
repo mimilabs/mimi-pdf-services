@@ -8,7 +8,11 @@ import time
 import os
 from string import Template
 from fastapi import HTTPException
-from models import BasicForm, BasicForms, PrcForm, PrcForms, BulkOutput
+from models import (BasicForm, BasicForms, 
+                    PrcForm, PrcForms, 
+                    PasForm, PasForms,
+                    PamForm, PamForms,
+                    BulkOutput)
 import base64
 
 app = FastAPI(
@@ -38,6 +42,8 @@ WORK_DIR = "./workdir"
 # load all templates
 basic_template = Template(open('templates/basic_template.typ').read())
 prc_template = Template(open('templates/prc_template.typ').read())
+pas_template = Template(open('templates/pas_template.typ').read())
+pam_template = Template(open('templates/pam_template.typ').read())
 
 def _run_typst(source: str, format: str):
     
@@ -55,6 +61,7 @@ def _run_typst(source: str, format: str):
     try:
         output = typst.compile(fpath, format=format) 
     except RuntimeError as e:
+        print(e)
         raise HTTPException(status_code=500,
                         detail=str(e),
                         headers={"X-Error": "Typst compile error"})
@@ -124,6 +131,30 @@ async def use_prc_template(prc_form: PrcForm,
                         Path(prc_form.filename).stem,
                         prc_form.format)
 
+@app.post('/use_pas_template')
+async def use_pas_template(pas_form: PasForm,
+                    auth_result: str = Security(auth.verify)) -> Response:
+    """
+    Create a PAS-template document, where PAS stands for Prior Authorization  
+    for Surgery. You can generate the contents either manually or with help with
+    LLMs.
+    """
+    return _make_single(pas_template.substitute(**pas_form.__dict__),
+                        Path(pas_form.filename).stem,
+                        pas_form.format)
+
+@app.post('/use_pam_template')
+async def use_pam_template(pam_form: PamForm,
+                    auth_result: str = Security(auth.verify)) -> Response:
+    """
+    Create a PAM-template document, where PAM stands for Prior Authorization  
+    for Meds. You can generate the contents either manually or with help with
+    LLMs.
+    """
+    return _make_single(pam_template.substitute(**pam_form.__dict__),
+                        Path(pam_form.filename).stem,
+                        pam_form.format)
+
 @app.post('/use_blank_template_in_bulk')
 async def use_blank_template_in_bulk(basic_forms: BasicForms,
                     response: Response,
@@ -160,6 +191,32 @@ async def use_prc_template_in_bulk(prc_forms: PrcForms,
     appropriately to get the list of the output files.
     """
     output_array, p_time_tot = _make_bulk(prc_forms, prc_template)
+    response.headers["MIMI-Processing-Time"] = str(p_time_tot)
+    return output_array
+
+@app.post('/use_pas_template_in_bulk')
+async def use_pas_template_in_bulk(pas_forms: PasForms,
+                    response: Response,
+                    auth_result: str = Security(auth.verify)) -> BulkOutput:
+    """
+    Create a list of PAS-template documents - a bulk operation. This endpoint 
+    will return a list of PDF/PNG/SVG bytestrings. You need to parse the output 
+    appropriately to get the list of the output files.
+    """
+    output_array, p_time_tot = _make_bulk(pas_forms, pas_template)
+    response.headers["MIMI-Processing-Time"] = str(p_time_tot)
+    return output_array
+
+@app.post('/use_pam_template_in_bulk')
+async def use_pam_template_in_bulk(pam_forms: PamForms,
+                    response: Response,
+                    auth_result: str = Security(auth.verify)) -> BulkOutput:
+    """
+    Create a list of PAM-template documents - a bulk operation. This endpoint 
+    will return a list of PDF/PNG/SVG bytestrings. You need to parse the output 
+    appropriately to get the list of the output files.
+    """
+    output_array, p_time_tot = _make_bulk(pam_forms, pam_template)
     response.headers["MIMI-Processing-Time"] = str(p_time_tot)
     return output_array
 
