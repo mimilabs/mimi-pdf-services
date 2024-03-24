@@ -325,7 +325,7 @@ if __name__ == "__main__":
     
     data = [["cnt", "time_tot", "time_avg"]]
     for i in range(5): # 5 batches of experiments
-        for bulk_cnt in [1, 5, 10, 20, 30, 40, 50, 100]:
+        for bulk_cnt in [1, 5, 10, 20, 30, 40, 50]:
             d = test_bulk_speed(access_token, address, bulk_cnt)
             print(f"[SpeedTest] {str(d)}")
             data.append(d)
