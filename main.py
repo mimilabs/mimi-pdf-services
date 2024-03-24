@@ -132,6 +132,11 @@ def _make_bulk(forms, template):
                              "filename": filename})
     return output_array, p_time_tot
 
+@app.get('/')
+async def read_main():
+    return {"msg": """Please use the API endpoints to generate PDFs.
+For more information, please visit the documentation page at
+https://pdfservices.mimilabs.org/docs."""}
 
 @app.post('/use_blank_template')
 async def use_blank_template(basic_form: BasicForm,
@@ -144,13 +149,6 @@ async def use_blank_template(basic_form: BasicForm,
     return _make_single(basic_form.content,
                         Path(basic_form.filename).stem,
                         basic_form.format)
-
-
-@app.get('/')
-async def read_main():
-    return {"msg": """Please use the API endpoints to generate PDFs.
-For more information, please visit the documentation page at
-https://pdfservices.mimilabs.org/docs."""}
 
 
 @app.post('/use_basic_template')

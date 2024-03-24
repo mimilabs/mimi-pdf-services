@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker build -t mimi-pdf-services .
+
 #aws ecr create-repository --repository-name mimi-pdf-services --region us-east-2
 
 docker tag mimi-pdf-services 533267369554.dkr.ecr.us-east-2.amazonaws.com/mimi-pdf-services	
