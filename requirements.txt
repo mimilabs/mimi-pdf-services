@@ -9,3 +9,5 @@ pyjwt[crypto]
 requests
 certifi
 email-validator
+httpx
+pytest

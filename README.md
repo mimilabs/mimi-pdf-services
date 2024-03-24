@@ -55,6 +55,8 @@ You can start using the service immediately.
 We will manage all the hairy details and groundwork for you. 
 If you chose this path, you can go to the next section on how to use the engine.
 
+Please check out the [tests/test_with_server.py](test/test_with_server.py) script to learn about how to use all the end points. Also, don't forget to checkout the dommentations at [https://pdfservices.mimilabs.org/docs](https://pdfservices.mimilabs.org/docs).
+
 However, if you want more freedom, you can choose the latter path - using it from the source code. 
 This section will illustrate how to do the latter.
 

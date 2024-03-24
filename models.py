@@ -1,20 +1,22 @@
 from pydantic import BaseModel
 from typing import Literal, List
 
-LOGO_LIST = Literal["\"mimilabs.png\"", 
-                   "\"auth0.png\"", 
-                   "\"fastapi.png\"", 
-                   "\"auth0.png\""]
+LOGO_LIST = Literal["\"mimilabs.png\"",
+                    "\"auth0.png\"",
+                    "\"fastapi.png\"",
+                    "\"auth0.png\""]
+
 
 class BasicForm(BaseModel):
     content: str
-    format: Literal["pdf", "png", "svg"]
+    format: Literal["pdf", "png", "svg"] = "pdf"
     filename: str = "raw_tmp"
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
 
+
 class PrcForm(BaseModel):
-    format: Literal["pdf", "png", "svg"]
+    format: Literal["pdf", "png", "svg"] = "pdf"
     filename: str = "prc_tmp"
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
@@ -115,8 +117,9 @@ class PrcForm(BaseModel):
     cvalue5c: str = ""
     cvalue5d: str = ""
 
+
 class PasForm(BaseModel):
-    format: Literal["pdf", "png", "svg"]
+    format: Literal["pdf", "png", "svg"] = "pdf"
     filename: str = "pas_tmp"
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
@@ -127,7 +130,7 @@ class PasForm(BaseModel):
     patientid: str = ""
     claimid: str = ""
     procedurename: str = ""
-    surgerydate: str = "" 
+    surgerydate: str = ""
     reasonsforappropriateness: str = ""
     riskfactors: str = ""
     faxnumber: str = ""
@@ -135,8 +138,9 @@ class PasForm(BaseModel):
     doctorname: str = ""
     practicename: str = ""
 
+
 class PamForm(BaseModel):
-    format: Literal["pdf", "png", "svg"]
+    format: Literal["pdf", "png", "svg"] = "pdf"
     filename: str = "pam_tmp"
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
@@ -148,7 +152,7 @@ class PamForm(BaseModel):
     claimid: str = ""
     productname: str = ""
     diagnosis: str = ""
-    indications: str = "" 
+    indications: str = ""
     reasonsforappropriateness: str = ""
     riskfactors: str = ""
     faxnumber: str = ""
@@ -156,16 +160,17 @@ class PamForm(BaseModel):
     doctorname: str = ""
     practicename: str = ""
 
+
 BasicForms = List[BasicForm]
 PrcForms = List[PrcForm]
 PasForms = List[PasForm]
 PamForms = List[PamForm]
+
 
 class BulkItem(BaseModel):
     bytestring: str
     processing_time: float
     filename: str
 
+
 BulkOutput = List[BulkItem]
-
-
