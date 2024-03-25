@@ -13,6 +13,8 @@ class BasicForm(BaseModel):
     filename: str = "raw_tmp"
     headerlogo: LOGO_LIST = "\"mimilabs.png\""
     footertext: str = "mimilabs.ai - Beautiful Small Projects, One by One"
+    saveins3: bool = False
+    s3folder: str = "test"
 
 
 class PrcForm(BaseModel):
@@ -116,6 +118,8 @@ class PrcForm(BaseModel):
     cvalue5b: str = ""
     cvalue5c: str = ""
     cvalue5d: str = ""
+    saveins3: bool = False
+    s3folder: str = "test"
 
 
 class PasForm(BaseModel):
@@ -137,6 +141,8 @@ class PasForm(BaseModel):
     phonenumber: str = ""
     doctorname: str = ""
     practicename: str = ""
+    saveins3: bool = False
+    s3folder: str = "test"
 
 
 class PamForm(BaseModel):
@@ -159,6 +165,8 @@ class PamForm(BaseModel):
     phonenumber: str = ""
     doctorname: str = ""
     practicename: str = ""
+    saveins3: bool = False
+    s3folder: str = "test"
 
 
 BasicForms = List[BasicForm]

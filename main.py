@@ -9,6 +9,7 @@ import typst
 from utils import VerifyToken
 from pathlib import Path
 import tempfile
+import boto3
 from models import (BasicForm, BasicForms,
                     PrcForm, PrcForms,
                     PasForm, PasForms,
@@ -33,16 +34,27 @@ directly (hard, but more customaizable).""",
         "name": "Apache 2.0",
         "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
+    openapi_tags=[
+        {"name": "unstructured",
+         "description": "Unstructured PDF generation"},
+        {"name": "structured",
+         "description": "Structured PDF generation"},
+        {"name": "semi-structured",
+         "description": "Semi-structured PDF generation"}
+    ],
     docs_url=None,
     redoc_url=None
 )
 auth = VerifyToken()  # use Auth0 API-Key
+s3 = boto3.resource('s3')
 
 # work directory
 # - this is the folder where raw Typst sources and image files are stored
 WORK_DIR = "./workdir"
+BUCKET_NAME = "mimi-pdf-services-us-east-2"  # S3 bucket name
 
 # load all templates
+blank_template = Template(open('templates/blank_template.typ').read())
 basic_template = Template(open('templates/basic_template.typ').read())
 prc_template = Template(open('templates/prc_template.typ').read())
 pas_template = Template(open('templates/pas_template.typ').read())
@@ -95,11 +107,21 @@ def _run_typst(source: str, format: str):
     return output, processing_time
 
 
-def _make_single(source: str, filename: str, format: str):
+def _make_single(form, template):
     """
     Wraps a single document output into a Response object.
     """
+    source = template.substitute(**form.__dict__)
+    filename = Path(form.filename).stem
+    format = form.format
+    saveins3 = form.saveins3
     output, processing_time = _run_typst(source, format)
+
+    if saveins3:
+        s3.Bucket(BUCKET_NAME)\
+            .put_object(Key=f"{form.s3folder}/{filename}.{format}",
+                        Body=output,
+                        ContentType=f"application/{format}")
     return Response(content=output,
                     media_type=f"application/{format}",
                     headers={"Content-Disposition": ('attachment; ' +
@@ -111,13 +133,15 @@ def _make_bulk(forms, template):
     """
     Wraps multiple documents into an array of List(BulkItem), 
     i.e., BulkOutput. 
-    NOTE: If the number of forms is more than 50, it raises an error.
+    NOTE1: If the number of forms is more than 50, it raises an error.
+    NOTE2: Bulk mode doesn't support saving to S3.         
     """
     output_array = []
     p_time_tot = 0
     if len(forms) > 50:
         raise HTTPException(status_code=500,
-                            detail=str(e),
+                            detail=str("Too many documents. "
+                                       "Should be less than 50."),
                             headers={"X-Error": ("Too many documents."
                                                  "Should be less than 50.")})
 
@@ -132,13 +156,15 @@ def _make_bulk(forms, template):
                              "filename": filename})
     return output_array, p_time_tot
 
-@app.get('/')
+
+@app.get('/', include_in_schema=False)
 async def read_main():
     return {"msg": """Please use the API endpoints to generate PDFs.
 For more information, please visit the documentation page at
 https://pdfservices.mimilabs.org/docs."""}
 
-@app.post('/use_blank_template')
+
+@app.post('/use_blank_template', tags=["unstructured"])
 async def use_blank_template(basic_form: BasicForm,
                              auth_result: str = Security(auth.verify)) -> Response:
     """
@@ -146,12 +172,10 @@ async def use_blank_template(basic_form: BasicForm,
     i.e., blank template.
     The headerlog and footertext parameters are ignored.
     """
-    return _make_single(basic_form.content,
-                        Path(basic_form.filename).stem,
-                        basic_form.format)
+    return _make_single(basic_form, blank_template)
 
 
-@app.post('/use_basic_template')
+@app.post('/use_basic_template', tags=["unstructured"])
 async def use_basic_template(basic_form: BasicForm,
                              auth_result: str = Security(auth.verify)) -> Response:
     """
@@ -160,12 +184,10 @@ async def use_basic_template(basic_form: BasicForm,
     customizable. However, the headerlogo file should exist in 
     the work directory. 
     """
-    return _make_single(basic_template.substitute(**basic_form.__dict__),
-                        Path(basic_form.filename).stem,
-                        basic_form.format)
+    return _make_single(basic_form, basic_template)
 
 
-@app.post('/use_prc_template')
+@app.post('/use_prc_template', tags=["structured"])
 async def use_prc_template(prc_form: PrcForm,
                            auth_result: str = Security(auth.verify)) -> Response:
     """
@@ -176,12 +198,10 @@ async def use_prc_template(prc_form: PrcForm,
     the first section name will show as "Section A," 
     not "Profile." The form is highly customizable.
     """
-    return _make_single(prc_template.substitute(**prc_form.__dict__),
-                        Path(prc_form.filename).stem,
-                        prc_form.format)
+    return _make_single(prc_form, prc_template)
 
 
-@app.post('/use_pas_template')
+@app.post('/use_pas_template', tags=["semi-structured"])
 async def use_pas_template(pas_form: PasForm,
                            auth_result: str = Security(auth.verify)) -> Response:
     """
@@ -189,12 +209,10 @@ async def use_pas_template(pas_form: PasForm,
     for Prior Authorization for Surgery. You can generate 
     the contents either manually or with help with LLMs.
     """
-    return _make_single(pas_template.substitute(**pas_form.__dict__),
-                        Path(pas_form.filename).stem,
-                        pas_form.format)
+    return _make_single(pas_form, pas_template)
 
 
-@app.post('/use_pam_template')
+@app.post('/use_pam_template', tags=["semi-structured"])
 async def use_pam_template(pam_form: PamForm,
                            auth_result: str = Security(auth.verify)) -> Response:
     """
@@ -202,12 +220,10 @@ async def use_pam_template(pam_form: PamForm,
     for Prior Authorization for Meds. You can generate 
     the contents either manually or with help with LLMs.
     """
-    return _make_single(pam_template.substitute(**pam_form.__dict__),
-                        Path(pam_form.filename).stem,
-                        pam_form.format)
+    return _make_single(pam_form, pam_template)
 
 
-@app.post('/use_blank_template_in_bulk')
+@app.post('/use_blank_template_in_bulk', tags=["unstructured"])
 async def use_blank_template_in_bulk(basic_forms: BasicForms,
                                      response: Response,
                                      auth_result: str = Security(auth.verify)) -> BulkOutput:
@@ -223,7 +239,7 @@ async def use_blank_template_in_bulk(basic_forms: BasicForms,
     return output_array
 
 
-@app.post('/use_basic_template_in_bulk')
+@app.post('/use_basic_template_in_bulk', tags=["unstructured"])
 async def use_basic_template_in_bulk(basic_forms: BasicForms,
                                      response: Response,
                                      auth_result: str = Security(auth.verify)) -> BulkOutput:
@@ -239,7 +255,7 @@ async def use_basic_template_in_bulk(basic_forms: BasicForms,
     return output_array
 
 
-@app.post('/use_prc_template_in_bulk')
+@app.post('/use_prc_template_in_bulk', tags=["structured"])
 async def use_prc_template_in_bulk(prc_forms: PrcForms,
                                    response: Response,
                                    auth_result: str = Security(auth.verify)) -> BulkOutput:
@@ -255,7 +271,7 @@ async def use_prc_template_in_bulk(prc_forms: PrcForms,
     return output_array
 
 
-@app.post('/use_pas_template_in_bulk')
+@app.post('/use_pas_template_in_bulk', tags=["semi-structured"])
 async def use_pas_template_in_bulk(pas_forms: PasForms,
                                    response: Response,
                                    auth_result: str = Security(auth.verify)) -> BulkOutput:
@@ -271,7 +287,7 @@ async def use_pas_template_in_bulk(pas_forms: PasForms,
     return output_array
 
 
-@app.post('/use_pam_template_in_bulk')
+@app.post('/use_pam_template_in_bulk', tags=["semi-structured"])
 async def use_pam_template_in_bulk(pam_forms: PamForms,
                                    response: Response,
                                    auth_result: str = Security(auth.verify)) -> BulkOutput:

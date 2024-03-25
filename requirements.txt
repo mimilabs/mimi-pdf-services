@@ -11,3 +11,4 @@ certifi
 email-validator
 httpx
 pytest
+boto3

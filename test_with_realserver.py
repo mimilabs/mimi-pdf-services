@@ -7,7 +7,7 @@ import hashlib
 import base64
 
 URL = "https://pdfservices.mimilabs.org"
-# URL = "http://127.0.0.1:8000" # Run run.sh before uncommenting this
+# URL = "http://127.0.0.1:8000"  # Run run.sh before uncommenting this
 
 
 def get_access_token():
@@ -32,7 +32,8 @@ def test_blank_template(access_token,
     filename = "test_blank"
     data = {"content": "= Introduction\n#lorem(400)",
             "filename": filename,
-            "format": format}
+            "format": format,
+            "saveins3": True}
     headers = {"content-type": "application/json",
                "Authorization": ("Bearer " + access_token)}
     res = requests.post(f"{URL}/use_blank_template",
@@ -300,6 +301,7 @@ if __name__ == "__main__":
     access_token = get_access_token()
 
     test_blank_template(access_token)
+
     test_blank_template(access_token, "png")
 
     test_basic_template(access_token)
